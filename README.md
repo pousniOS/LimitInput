@@ -1,0 +1,2 @@
+# LimitInput
+通过给UITextView、UITextField添加的属性设置UITextView、UITextField可以输入的字符
