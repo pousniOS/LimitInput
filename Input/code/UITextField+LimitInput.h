@@ -10,6 +10,11 @@
 #import "LimitInput.h"
 @interface UITextField (Category)
 @property(nonatomic,assign)AvailableCharacterSet availableCharacterSet;
+
+/**
+ 该block可拦截到当前输入的文本是否可用,并且可以更改不可用文本为可用文本
+ */
+@property(nonatomic,copy)BOOL (^isAvailableBlock)(NSString *text,BOOL result);
 @end
 
 

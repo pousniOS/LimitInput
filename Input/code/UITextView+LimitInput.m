@@ -10,6 +10,7 @@
 #import <objc/runtime.h>
 #import "NSString+LimitInput.h"
 static char UITextViewAvailableCharacterSetKey;
+static char UITextViewIsAvailableBlockKey;
 @implementation UITextView (LimitInput)
 +(void)load{
     static dispatch_once_t onceToken;
@@ -33,10 +34,21 @@ static char UITextViewAvailableCharacterSetKey;
     method_exchangeImplementations(textViewMethod, exTextViewMethod);
 }
 
+-(BOOL (^)(NSString *, BOOL))isAvailableBlock{
+    return objc_getAssociatedObject(self, &UITextViewIsAvailableBlockKey);
+}
+-(void)setIsAvailableBlock:(BOOL (^)(NSString *, BOOL))isAvailableBlock{
+    objc_setAssociatedObject(self, &UITextViewIsAvailableBlockKey, isAvailableBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
 -(BOOL)ex_keyboardInput:(id)object shouldInsertText:(NSString*)text isMarkedText:(BOOL)isMarkedText{
     BOOL result = [self ex_keyboardInput:object shouldInsertText:text isMarkedText:isMarkedText];
     if (result == YES && self.availableCharacterSet != AvailableCharacterSetAll) {
-        return [text isValidWithAvailableCharacterSet:self.availableCharacterSet];
+        result = [text isValidWithAvailableCharacterSet:self.availableCharacterSet];
+        if (self.isAvailableBlock) {
+            return self.isAvailableBlock(text,result);
+        }
+        return result;
     }
     return result;
 }

@@ -47,6 +47,12 @@
     textField.layer.borderColor = UIColor.redColor.CGColor;
     textField.layer.borderWidth = 1.0f;
     textField.availableCharacterSet = AvailableCharacterSetNumber;
+    textField.isAvailableBlock = ^BOOL(NSString *text, BOOL result) {
+        if ([text isEqualToString:@"."]) {
+            return YES;
+        }
+        return result;
+    };
     [self.view addSubview:textField];
     
     y += 50;
