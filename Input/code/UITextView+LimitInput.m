@@ -32,6 +32,14 @@ static char UITextViewIsAvailableBlockKey;
     Method textViewMethod = class_getInstanceMethod(UITextView.class, textViewSEL);
     Method exTextViewMethod = class_getInstanceMethod([self class], @selector(ex_keyboardInput:shouldInsertText:isMarkedText:));
     method_exchangeImplementations(textViewMethod, exTextViewMethod);
+    
+    textViewSEL = NSSelectorFromString(@"keyboardInput:shouldReplaceTextInRange:replacementText:");
+    if ([UITextField.new respondsToSelector:textViewSEL] == NO) {
+        return;
+    }
+    textViewMethod = class_getInstanceMethod(UITextView.class, textViewSEL);
+    exTextViewMethod = class_getInstanceMethod([self class], @selector(ex_keyboardInput:shouldReplaceTextInRange:replacementText:));
+    method_exchangeImplementations(textViewMethod, exTextViewMethod);
 }
 
 -(BOOL (^)(NSString *, BOOL))isAvailableBlock{
@@ -40,7 +48,17 @@ static char UITextViewIsAvailableBlockKey;
 -(void)setIsAvailableBlock:(BOOL (^)(NSString *, BOOL))isAvailableBlock{
     objc_setAssociatedObject(self, &UITextViewIsAvailableBlockKey, isAvailableBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
-
+-(BOOL)ex_keyboardInput:(id)object shouldReplaceTextInRange:(NSString*)text replacementText:(BOOL)isMarkedText{
+    BOOL result = [self ex_keyboardInput:object shouldReplaceTextInRange:text replacementText:isMarkedText];
+    if (result == YES && self.availableCharacterSet != AvailableCharacterSetAll) {
+        result = [text isValidWithAvailableCharacterSet:self.availableCharacterSet];
+        if (self.isAvailableBlock) {
+            return self.isAvailableBlock(text,result);
+        }
+        return result;
+    }
+    return result;
+}
 -(BOOL)ex_keyboardInput:(id)object shouldInsertText:(NSString*)text isMarkedText:(BOOL)isMarkedText{
     BOOL result = [self ex_keyboardInput:object shouldInsertText:text isMarkedText:isMarkedText];
     if (result == YES && self.availableCharacterSet != AvailableCharacterSetAll) {
