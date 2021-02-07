@@ -14,7 +14,6 @@ typedef NS_OPTIONS(NSUInteger, AvailableCharacterSet) {
     AvailableCharacterSetUpperCaseLetter    = 1<<1,//大写字母 [A-Z]
     AvailableCharacterSetNumber             = 1<<2,//数字 [0-9]
     AvailableCharacterSetEnglishPunctuation = 1<<3,//英文标点符号
-    AvailableCharacterSetOtherPunctuation   = 1<<4,//英文标点符号之外的标点符号
 };
 
 #endif /* LimitInput_h */

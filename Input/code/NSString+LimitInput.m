@@ -7,48 +7,48 @@
 //
 
 #import "NSString+LimitInput.h"
-static NSString* lowerCaseLetters(){
-    static NSString *_lowerCaseLetters = nil;
+static NSSet* lowerCaseLetters(){
+    static NSSet *_lowerCaseLetters = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSArray *lowerCaseLetters = @[
             @"q", @"w", @"e", @"r", @"t", @"y", @"u", @"i", @"o", @"p",
             @"a", @"s", @"d", @"f", @"g", @"h", @"j", @"k", @"l",
             @"z", @"x", @"c", @"v", @"b", @"n", @"m"];
-        _lowerCaseLetters = [lowerCaseLetters componentsJoinedByString:@""];
+        _lowerCaseLetters = [NSSet setWithArray:lowerCaseLetters];
         
     });
     return _lowerCaseLetters;
 }
 
-static NSString* upperCaseLetter(){
-    static NSString *_upperCaseLetter = nil;
+static NSSet* upperCaseLetter(){
+    static NSSet *_upperCaseLetter = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSArray *upperCaseLetter = @[
             @"Q", @"W", @"E", @"R", @"T", @"Y", @"U", @"I", @"O", @"P",
             @"A", @"S", @"D", @"F", @"G", @"H", @"J", @"K", @"L",
             @"Z", @"X", @"C", @"V", @"B", @"N", @"M"];
-        _upperCaseLetter = [upperCaseLetter componentsJoinedByString:@""];
+        _upperCaseLetter = [NSSet setWithArray:upperCaseLetter];
         
     });
     return _upperCaseLetter;
 }
 
-static NSString* number(){
-    static NSString *_number = nil;
+static NSSet* number(){
+    static NSSet *_number = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSArray *number = @[
             @"1",@"2",@"3",@"4",@"5",@"6",@"7",@"8",@"9",@"0"
         ];
-        _number = [number componentsJoinedByString:@""];
+        _number = [NSSet setWithArray:number];
     });
     return _number;
 }
 
-static NSString* englishPunctuation(){
-    static NSString *_englishPunctuation = nil;
+static NSSet* englishPunctuation(){
+    static NSSet *_englishPunctuation = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSArray *englishPunctuation = @[
@@ -87,20 +87,9 @@ static NSString* englishPunctuation(){
             @" ",
             @"\\n"
         ];
-        _englishPunctuation = [englishPunctuation componentsJoinedByString:@""];
+        _englishPunctuation = [NSSet setWithArray:englishPunctuation];
     });
     return _englishPunctuation;
-}
-
-static NSString* otherPunctuation(){
-    static NSString *_otherPunctuation = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSArray *otherPunctuation = @[
-        ];
-        _otherPunctuation = [otherPunctuation componentsJoinedByString:@""];
-    });
-    return _otherPunctuation;
 }
 
 static NSPredicate *getPredicateWithCharacterSet(AvailableCharacterSet set){
@@ -118,23 +107,20 @@ static NSPredicate *getPredicateWithCharacterSet(AvailableCharacterSet set){
     if (set == AvailableCharacterSetAll) {
         return nil;
     }
-    NSString *chars = @"";
+    NSMutableSet *muset = NSMutableSet.new;
     if (set&AvailableCharacterSetLowerCaseLetters){
-        chars = [chars stringByAppendingString:lowerCaseLetters()];
+        [muset addObjectsFromArray:lowerCaseLetters().allObjects];
     }
     if (set&AvailableCharacterSetUpperCaseLetter){
-        chars = [chars stringByAppendingString:upperCaseLetter()];
+        [muset addObjectsFromArray:upperCaseLetter().allObjects];
     }
     if (set&AvailableCharacterSetNumber){
-        chars = [chars stringByAppendingString:number()];
+        [muset addObjectsFromArray:number().allObjects];
     }
     if (set&AvailableCharacterSetEnglishPunctuation){
-        chars = [chars stringByAppendingString:englishPunctuation()];
+        [muset addObjectsFromArray:englishPunctuation().allObjects];
     }
-    if (set&AvailableCharacterSetOtherPunctuation){
-        chars = [chars stringByAppendingString:otherPunctuation()];
-    }
-    NSString *exp = [NSString stringWithFormat:@"[%@]*",chars];
+    NSString *exp = [NSString stringWithFormat:@"[%@]*",[[muset allObjects] componentsJoinedByString:@""]];
     _inputLimitPredicates[@(set)] = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",exp];
     return _inputLimitPredicates[@(set)];
 }
