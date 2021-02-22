@@ -22,7 +22,7 @@
     textField.frame = CGRectMake(5, y, 200, 30);
     textField.layer.borderColor = UIColor.redColor.CGColor;
     textField.layer.borderWidth = 1.0f;
-    textField.availableCharacterSet = AvailableCharacterSetLowerCaseLetters;
+    textField.availableCharacterSet = AvailableCharacterSetDecimalPad;
     [self.view addSubview:textField];
     
     y += 50;

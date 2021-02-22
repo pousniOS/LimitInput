@@ -47,6 +47,19 @@ static NSSet* number(){
     return _number;
 }
 
+static NSSet* decimalPad(){
+    static NSSet *_decimalPad = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableArray *mu_decimalPad = NSMutableArray.new;
+        [mu_decimalPad addObject:number().allObjects];
+        [mu_decimalPad addObject:@"."];
+        NSArray *decimalPad = mu_decimalPad;
+        _decimalPad = [NSSet setWithArray:decimalPad];
+    });
+    return _decimalPad;;
+}
+
 static NSSet* englishPunctuation(){
     static NSSet *_englishPunctuation = nil;
     static dispatch_once_t onceToken;
@@ -116,6 +129,9 @@ static NSPredicate *getPredicateWithCharacterSet(AvailableCharacterSet set){
     }
     if (set&AvailableCharacterSetNumber){
         [muset addObjectsFromArray:number().allObjects];
+    }
+    if (set&AvailableCharacterSetDecimalPad) {
+        [muset addObjectsFromArray:decimalPad().allObjects];
     }
     if (set&AvailableCharacterSetEnglishPunctuation){
         [muset addObjectsFromArray:englishPunctuation().allObjects];
